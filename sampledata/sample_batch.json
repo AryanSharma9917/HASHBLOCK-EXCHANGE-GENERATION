@@ -1,0 +1,46 @@
+{
+	"proposals": [
+		{
+			"signer": "turing",
+			"id": "1",
+			"type":"unit",
+			"system": "purchasing",
+			"key": "bag"
+		},
+		{
+			"signer": "turing",
+			"id": "2",
+			"type":"asset",
+			"system": "food",
+			"key": "peanuts"
+		},
+		{
+			"signer": "turing",
+			"id": "3",
+			"type":"unit",
+			"system": "currency",
+			"key": "$"
+		},
+		{
+			"signer": "turing",
+			"id": "4",
+			"type":"unit",
+			"system": "purchasing",
+			"key": "bale"
+		},
+		{
+			"signer": "turing",
+			"id": "5",
+			"type":"asset",
+			"system": "food",
+			"key": "hay"
+		}
+	],
+	"votes": [
+		{"signer": "church", "proposal_id": "1", "vote": "accept"},
+		{"signer": "church", "proposal_id": "2", "vote": "accept"},
+		{"signer": "church", "proposal_id": "3", "vote": "accept"},
+		{"signer": "church", "proposal_id": "4", "vote": "accept"},
+		{"signer": "church", "proposal_id": "5", "vote": "accept"}
+	]
+}
