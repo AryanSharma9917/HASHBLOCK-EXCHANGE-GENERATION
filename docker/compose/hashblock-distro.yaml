@@ -1,0 +1,163 @@
+# ------------------------------------------------------------------------------
+# Copyright 2018 Frank V. Castellucci
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ------------------------------------------------------------------------------
+
+#
+# python3 ./sdk/python/get-pip.py && \
+#
+
+version: '2.1'
+
+services:
+
+  setting-processor:
+    image: hashblock/hashblock-setting-tp:latest
+    container_name: hashblock-setting-tp-latest
+    restart: always
+    environment:
+      - PYTHONPATH=/project/hashblock-exchange
+    depends_on:
+      - validator
+    command: "bash -c \"\
+         sleep 1 && \
+         setting-tp -vv \
+           -C tcp://validator:4004 \
+       \""
+    stop_signal: SIGKILL
+
+  asset-processor:
+    image: hashblock/hashblock-asset-tp:latest
+    container_name: hashblock-asset-tp-latest
+    restart: always
+    environment:
+      - PYTHONPATH=/project/hashblock-exchange
+    depends_on:
+      - setting-processor
+    command: "bash -c \"\
+       sleep 1 && \
+       asset-tp -vv \
+         -C tcp://validator:4004 \
+     \""
+    stop_signal: SIGKILL
+
+  unit-processor:
+    image: hashblock/hashblock-unit-tp:latest
+    container_name: hashblock-unit-tp-latest
+    restart: always
+    environment:
+      - PYTHONPATH=/project/hashblock-exchange
+    depends_on:
+      - setting-processor
+    command: "bash -c \"\
+       sleep 1 && \
+       unit-tp -vv \
+         -C tcp://validator:4004 \
+     \""
+    stop_signal: SIGKILL
+
+  exchange-processor:
+    image: hashblock/hashblock-exchange-tp:latest
+    container_name: hashblock-exchange-tp-latest
+    restart: always
+    volumes:
+      - ../../../hbruntime:/project/private
+    environment:
+      - HASHBLOCK_KEYS=/project/private
+      - HASHBLOCK_CONFIG=/project/private
+      - PYTHONPATH=/project/hashblock-exchange
+    depends_on:
+      - asset-processor
+    command: "bash -c \"\
+        sleep 1 && \
+        exchange-tp -vv \
+          -C tcp://validator:4004 \
+      \""
+    stop_signal: SIGKILL
+
+  track-processor:
+    image: hashblock/hashblock-track-tp:latest
+    container_name: hashblock-track-tp-latest
+    restart: always
+    volumes:
+      - ../../../hbruntime:/project/private
+    environment:
+      - HASHBLOCK_KEYS=/project/private
+      - HASHBLOCK_CONFIG=/project/private
+      - PYTHONPATH=/project/hashblock-exchange
+    depends_on:
+      - exchange-processor
+    command: "bash -c \"\
+        sleep 1 && \
+        track-tp -vv \
+          -C tcp://validator:4004 \
+      \""
+    stop_signal: SIGKILL
+
+  hashblock_rest:
+    image: hashblock/hashblock-rest:latest
+    container_name: hashblock-rest
+    volumes:
+      - ../../../hbruntime:/project/private
+    ports:
+      - '8000:8000'
+    environment:
+      - HASHBLOCK_KEYS=/project/private
+      - HASHBLOCK_CONFIG=/project/private
+      - PYTHONUNBUFFERED='true'
+    depends_on:
+      - validator
+      - rest-api
+    command: >
+      gunicorn -b 0.0.0.0:8000
+      --access-logfile -
+      "hashblock_rest.app:application"
+    stop_signal: SIGKILL
+
+  settings-tp:
+    image: hyperledger/sawtooth-settings-tp:latest
+    container_name: sawtooth-settings-tp-local
+    depends_on:
+      - validator
+    entrypoint: settings-tp -vv -C tcp://validator:4004
+    stop_signal: SIGKILL
+
+  validator:
+    image: hyperledger/sawtooth-validator:latest
+    container_name: sawtooth-validator-local
+    volumes:
+      - ../../../hbruntime:/project/kandc
+    expose:
+      - 4004
+    ports:
+      - "4004:4004"
+    entrypoint: "bash -c \"\
+        sawadm keygen && \
+        sawadm genesis /project/kandc/config-settings.batch /project/kandc/hashblock.batch && \
+        sawtooth-validator -vv \
+          --endpoint tcp://validator:8800 \
+          --bind component:tcp://eth0:4004 \
+          --bind network:tcp://eth0:8800 \
+        \""
+    stop_signal: SIGKILL
+
+  rest-api:
+    image: hyperledger/sawtooth-rest_api:latest
+    container_name: sawtooth-rest-api-local
+    ports:
+      - "8008:8008"
+    depends_on:
+      - validator
+    command: sawtooth-rest-api -v --connect tcp://validator:4004 --bind rest-api:8008
+    stop_signal: SIGKILL
