@@ -1,0 +1,107 @@
+// -----------------------------------------------------------------------------
+// Copyright 2018 Frank V. Castellucci and Arthur Greef
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// -----------------------------------------------------------------------------
+
+syntax = "proto3";
+option java_multiple_files = true;
+option java_package = "hashblock.exchange.protobuf";
+
+// Resource quantity
+message Quantity {
+
+    //  Quantity amount? - Fixed width integer
+	bytes value = 1;
+
+    //  Prime # associated to unit of measure
+	bytes unit = 2;
+
+    //  Prime # associated to asset
+	bytes asset = 3;
+}
+
+// Quantity ratio data for matching equation
+message Ratio {
+
+    //  Transaction quantity of unit and resource
+    Quantity numerator = 1;
+
+    //  Transaction quantity of unit and resource
+    Quantity denominator = 2;
+}
+
+//  Initiating data elements
+message UTXQ {
+    //  Key for initiator (who am I)
+    bytes plus = 1;
+    //  Keys for reciprocator (who am I 'asking' for example)
+    bytes minus = 2;
+    //  Transaction quantity structure
+    Quantity quantity = 3;
+    //  User configured UTXQ verb
+    string operation = 4;
+}
+
+//  Reciprocating data elements
+message MTXQ {
+    //  Key for reciprocator (who am I)
+    bytes plus = 1;
+    //  Key for initiator (who 'asked' for example)
+    bytes minus = 2;
+    //  Contains numerator and denominator for match equation
+    Ratio ratio = 3;
+    //  Transaction quantity structure
+    Quantity quantity = 4;
+    //  For 0.1.0 this had the content of the initiating (UTXQ)
+    //  When the MTXQ is saved
+    //  For 0.2.0 this is deprecated and not used
+    UTXQ unmatched = 5;
+    //  For 0.2.0 this contains the address (same as ukey)
+    //  that refers to the matched initiate
+    bytes utxq_addr = 6;
+    //  User configured MTXQ verb
+    string operation = 7;
+}
+
+message ExchangePayload {
+    enum Type {
+        UTXQ = 0;
+        MTXQ = 1;
+    }
+
+    //  Transaction type
+    Type type = 1;
+
+    //  The initiate address key
+    //  Data is in udata
+    string ukey = 2;
+
+    //  The reciprocate address key
+    //  Data is in mdata
+    string mkey = 3;
+
+    // The encrypted blob of the MTXQ
+    bytes mdata = 4;
+
+    // The encrypted blob of the UTXQ
+    bytes udata = 5;
+
+    // The encrypted blob of the matched UTXQ
+    // if we are processing MTXQ Actions
+    bytes pairings = 6;
+
+    //  This is the 'proof' to use in verifying matching equation
+    bytes proof = 7;
+}
+
