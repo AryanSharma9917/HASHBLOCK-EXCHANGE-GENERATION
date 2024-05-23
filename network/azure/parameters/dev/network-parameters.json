@@ -1,0 +1,167 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "adminUsername": {
+        "reference": {
+          "keyVault": {
+            "id": "/subscriptions/1d8573de-6262-4e30-b665-a2ce4f6c9adf/resourceGroups/secrets/providers/Microsoft.KeyVault/vaults/hashblock"
+          },
+          "secretName": "vmAdminUserName"
+        }
+      },
+      "adminPassword": {
+        "reference": {
+          "keyVault": {
+            "id": "/subscriptions/1d8573de-6262-4e30-b665-a2ce4f6c9adf/resourceGroups/secrets/providers/Microsoft.KeyVault/vaults/hashblock"
+          },
+          "secretName": "vmAdminUserPassword"
+        }
+      },
+      "validatorPrivKey0": {
+        "reference": {
+          "keyVault": {
+            "id": "/subscriptions/1d8573de-6262-4e30-b665-a2ce4f6c9adf/resourceGroups/secrets/providers/Microsoft.KeyVault/vaults/hashblock"
+          },
+          "secretName": "validator-priv-0"
+        }
+      },
+      "validatorPubKey0": {
+        "reference": {
+          "keyVault": {
+            "id": "/subscriptions/1d8573de-6262-4e30-b665-a2ce4f6c9adf/resourceGroups/secrets/providers/Microsoft.KeyVault/vaults/hashblock"
+          },
+          "secretName": "validator-pub-0"
+        }
+      },
+      "validatorPrivKey1": {
+        "reference": {
+          "keyVault": {
+            "id": "/subscriptions/1d8573de-6262-4e30-b665-a2ce4f6c9adf/resourceGroups/secrets/providers/Microsoft.KeyVault/vaults/hashblock"
+          },
+          "secretName": "validator-priv-1"
+        }
+      },
+      "validatorPubKey1": {
+        "reference": {
+          "keyVault": {
+            "id": "/subscriptions/1d8573de-6262-4e30-b665-a2ce4f6c9adf/resourceGroups/secrets/providers/Microsoft.KeyVault/vaults/hashblock"
+          },
+          "secretName": "validator-pub-1"
+        }
+      },
+      "validatorPrivKey2": {
+        "reference": {
+          "keyVault": {
+            "id": "/subscriptions/1d8573de-6262-4e30-b665-a2ce4f6c9adf/resourceGroups/secrets/providers/Microsoft.KeyVault/vaults/hashblock"
+          },
+          "secretName": "validator-priv-2"
+        }
+      },
+      "validatorPubKey2": {
+        "reference": {
+          "keyVault": {
+            "id": "/subscriptions/1d8573de-6262-4e30-b665-a2ce4f6c9adf/resourceGroups/secrets/providers/Microsoft.KeyVault/vaults/hashblock"
+          },
+          "secretName": "validator-pub-2"
+        }
+      },
+      "validatorPrivKey3": {
+        "reference": {
+          "keyVault": {
+            "id": "/subscriptions/1d8573de-6262-4e30-b665-a2ce4f6c9adf/resourceGroups/secrets/providers/Microsoft.KeyVault/vaults/hashblock"
+          },
+          "secretName": "validator-priv-3"
+        }
+      },
+      "validatorPubKey3": {
+        "reference": {
+          "keyVault": {
+            "id": "/subscriptions/1d8573de-6262-4e30-b665-a2ce4f6c9adf/resourceGroups/secrets/providers/Microsoft.KeyVault/vaults/hashblock"
+          },
+          "secretName": "validator-pub-3"
+        }
+      },
+      "networkPrivKey": {
+        "reference": {
+          "keyVault": {
+            "id": "/subscriptions/1d8573de-6262-4e30-b665-a2ce4f6c9adf/resourceGroups/secrets/providers/Microsoft.KeyVault/vaults/hashblock"
+          },
+          "secretName": "network-priv"
+        }
+      },
+      "networkPubKey": {
+        "reference": {
+          "keyVault": {
+            "id": "/subscriptions/1d8573de-6262-4e30-b665-a2ce4f6c9adf/resourceGroups/secrets/providers/Microsoft.KeyVault/vaults/hashblock"
+          },
+          "secretName": "network-pub"
+        }
+      },
+      "enigmaPrivKey": {
+        "reference": {
+          "keyVault": {
+            "id": "/subscriptions/1d8573de-6262-4e30-b665-a2ce4f6c9adf/resourceGroups/secrets/providers/Microsoft.KeyVault/vaults/hashblock"
+          },
+          "secretName": "enigma-priv"
+        }
+      },
+      "enigmaPubKey": {
+        "reference": {
+          "keyVault": {
+            "id": "/subscriptions/1d8573de-6262-4e30-b665-a2ce4f6c9adf/resourceGroups/secrets/providers/Microsoft.KeyVault/vaults/hashblock"
+          },
+          "secretName": "enigma-pub"
+        }
+      },
+      "churchPubKey": {
+        "reference": {
+          "keyVault": {
+            "id": "/subscriptions/1d8573de-6262-4e30-b665-a2ce4f6c9adf/resourceGroups/secrets/providers/Microsoft.KeyVault/vaults/hashblock"
+          },
+          "secretName": "church-pub"
+        }
+      },
+      "churchPrivKey": {
+        "reference": {
+          "keyVault": {
+            "id": "/subscriptions/1d8573de-6262-4e30-b665-a2ce4f6c9adf/resourceGroups/secrets/providers/Microsoft.KeyVault/vaults/hashblock"
+          },
+          "secretName": "church-priv"
+        }
+      },
+      "turingPubKey": {
+        "reference": {
+          "keyVault": {
+            "id": "/subscriptions/1d8573de-6262-4e30-b665-a2ce4f6c9adf/resourceGroups/secrets/providers/Microsoft.KeyVault/vaults/hashblock"
+          },
+          "secretName": "turing-pub"
+        }
+      },
+      "turingPrivKey": {
+        "reference": {
+          "keyVault": {
+            "id": "/subscriptions/1d8573de-6262-4e30-b665-a2ce4f6c9adf/resourceGroups/secrets/providers/Microsoft.KeyVault/vaults/hashblock"
+          },
+          "secretName": "turing-priv"
+        }
+      },
+      "zksnarkLambda": {
+        "reference": {
+          "keyVault": {
+            "id": "/subscriptions/1d8573de-6262-4e30-b665-a2ce4f6c9adf/resourceGroups/secrets/providers/Microsoft.KeyVault/vaults/hashblock"
+          },
+          "secretName": "zksnark-lambda"
+        }
+      },
+      "dnsNameForPublicIP": {
+        "value": "hb"
+      },
+      "vmSize": {
+        "value": "Standard_A1"
+      },
+      "instanceCount": {
+        "value": 3
+      }
+    }
+  }

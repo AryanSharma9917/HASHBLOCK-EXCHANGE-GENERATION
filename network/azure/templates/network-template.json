@@ -1,0 +1,336 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "adminUsername": {
+        "type": "securestring",
+        "metadata": {
+          "description": "Username for the Virtual Machine."
+        }
+      },
+      "adminPassword": {
+        "type": "securestring",
+        "metadata": {
+          "description": "Password for the Virtual Machine."
+        }
+      },
+      "validatorPrivKey0": {
+        "type": "securestring",
+        "metadata": {
+          "description": "Node 0 validator private key."
+        }
+      },
+      "validatorPubKey0": {
+        "type": "securestring",
+        "metadata": {
+          "description": "Node 0 validator public key."
+        }
+      },
+      "validatorPrivKey1": {
+        "type": "securestring",
+        "metadata": {
+          "description": "Node 0 validator private key."
+        }
+      },
+      "validatorPubKey1": {
+        "type": "securestring",
+        "metadata": {
+          "description": "Node 0 validator public key."
+        }
+      },
+      "validatorPrivKey2": {
+        "type": "securestring",
+        "metadata": {
+          "description": "Node 0 validator private key."
+        }
+      },
+      "validatorPubKey2": {
+        "type": "securestring",
+        "metadata": {
+          "description": "Node 0 validator public key."
+        }
+      },
+      "validatorPrivKey3": {
+        "type": "securestring",
+        "metadata": {
+          "description": "Node 0 validator private key."
+        }
+      },
+      "validatorPubKey3": {
+        "type": "securestring",
+        "metadata": {
+          "description": "Node 0 validator public key."
+        }
+      },
+      "networkPrivKey": {
+        "type": "securestring",
+        "metadata": {
+          "description": "Network ZMQ curve private key."
+        }
+      },
+      "networkPubKey": {
+        "type": "securestring",
+        "metadata": {
+          "description": "Network ZMQ curve public key."
+        }
+      },
+      "enigmaPrivKey": {
+        "type": "securestring",
+        "metadata": {
+          "description": "Enigma private key."
+        }
+      },
+      "enigmaPubKey": {
+        "type": "securestring",
+        "metadata": {
+          "description": "Enigma public key."
+        }
+      },
+      "churchPubKey": {
+        "type": "securestring",
+        "metadata": {
+          "description": "Church public key."
+        }
+      },
+      "churchPrivKey": {
+        "type": "securestring",
+        "metadata": {
+          "description": "Church private key."
+        }
+      },
+      "turingPubKey": {
+        "type": "securestring",
+        "metadata": {
+          "description": "Turing public key."
+        }
+      },
+      "turingPrivKey": {
+        "type": "securestring",
+        "metadata": {
+          "description": "Turing private key."
+        }
+      },
+      "zksnarkLambda": {
+        "type": "securestring",
+        "metadata": {
+          "description": "zkSNARK Lambda parameters."
+        }
+      },
+      "dnsNameForPublicIP": {
+        "type": "string",
+        "metadata": {
+          "description": "Unique DNS Name for the Public IP used to access the Virtual Machine."
+        }
+      },
+      "vmSize": {
+        "type": "string",
+        "defaultValue": "Standard_A0",
+        "metadata": {
+          "description": "VM size for the Docker host."
+        }
+      },
+      "ubuntuOSVersion": {
+        "type": "string",
+        "defaultValue": "16.04.0-LTS",
+        "metadata": {
+          "description": "The Ubuntu version for deploying the Docker containers. This will pick a fully patched image of this given Ubuntu version. Allowed values: 14.04.4-LTS, 15.10, 16.04.0-LTS"
+        },
+        "allowedValues": [
+          "14.04.4-LTS",
+          "15.10",
+          "16.04.0-LTS"
+        ]
+      },
+      "instanceCount": {
+        "type": "int",
+        "metadata": {
+          "description": "Number of VM instances (100 or less)."
+        },
+        "maxValue": 100
+      },
+      "_artifactsLocation": {
+        "type": "string",
+        "metadata": {
+          "description": "The base URI where artifacts required by this template are located. When the template is deployed using the accompanying scripts, a private location in the subscription will be used and this value will be automatically generated."
+        },
+        "defaultValue": "https://raw.githubusercontent.com/hashblock/hashblock-exchange/master/network/azure"
+      }
+    },
+    "variables": {
+      "envLocation": "[toLower(resourceGroup().location)]",
+      "uniqueId": "[toLower(uniqueString(resourceGroup().id))]",
+      "shortUniqueId": "[concat(take(variables('uniqueId'), 3))]",      
+      "imagePublisher": "Canonical",
+      "imageOffer": "UbuntuServer",
+      "OSDiskName": "osdisk",
+      "extensionName": "customscriptextension",
+      "addressPrefix": "10.0.0.0/16",
+      "subnetName": "Subnet",
+      "subnetPrefix": "10.0.0.0/24",
+      "storageAccountType": "Standard_LRS",
+      "publicIPAddressType": "Dynamic",
+      "vmStorageAccountContainerName": "vhds",
+      "vmName": "HBDockerVM",
+      "virtualNetworkName": "HBVNETD",
+      "vnetID": "[resourceId('Microsoft.Network/virtualNetworks',variables('virtualNetworkName'))]",
+      "subnetRef": "[concat(variables('vnetID'),'/subnets/',variables('subnetName'))]",
+      "nicName": "HBVMNicD",
+      "publicIPAddressName": "HBPublicIPD",
+      "vmStorageAccountName": "[concat('vhd',variables('envLocation'),variables('shortUniqueId'))]",
+      "dnsName":"[concat(parameters('dnsNameForPublicIP'), variables('shortUniqueId'))]"
+    },
+    "resources": [
+      {
+        "type": "Microsoft.Storage/storageAccounts",
+        "name": "[variables('vmStorageAccountName')]",
+        "apiVersion": "2016-01-01",
+        "location": "[variables('envLocation')]",
+        "kind": "Storage",
+        "sku": {
+          "name": "[variables('storageAccountType')]"
+        }
+      },
+      {
+        "apiVersion": "2017-04-01",
+        "type": "Microsoft.Network/publicIPAddresses",
+        "name": "[concat(variables('publicIPAddressName'),copyIndex())]",
+        "location": "[variables('envLocation')]",
+        "properties": {
+          "publicIPAllocationMethod": "[variables('publicIPAddressType')]",
+          "dnsSettings": {
+            "domainNameLabel": "[concat(variables('dnsName'),copyIndex())]"
+          }
+        },
+        "copy": {
+          "name": "publicIpAddress",
+          "count": "[parameters('instanceCount')]"
+        }
+      },
+      {
+        "apiVersion": "2017-04-01",
+        "type": "Microsoft.Network/virtualNetworks",
+        "name": "[variables('virtualNetworkName')]",
+        "location": "[variables('envLocation')]",
+        "properties": {
+          "addressSpace": {
+            "addressPrefixes": [
+              "[variables('addressPrefix')]"
+            ]
+          },
+          "subnets": [
+            {
+              "name": "[variables('subnetName')]",
+              "properties": {
+                "addressPrefix": "[variables('subnetPrefix')]"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "apiVersion": "2017-04-01",
+        "type": "Microsoft.Network/networkInterfaces",
+        "name": "[concat(variables('nicName'),copyIndex())]",
+        "location": "[variables('envLocation')]",
+        "dependsOn": [
+          "[concat('Microsoft.Network/publicIPAddresses/', variables('publicIPAddressName'),copyIndex())]",
+          "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]"
+        ],
+        "properties": {
+          "ipConfigurations": [
+            {
+              "name": "[concat('ipconfig1',copyIndex())]",
+              "properties": {
+                "privateIPAllocationMethod": "Dynamic",
+                "publicIPAddress": {
+                  "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(variables('publicIPAddressName'),copyIndex()))]"
+                },
+                "subnet": {
+                  "id": "[variables('subnetRef')]"
+                }
+              }
+            }
+          ]
+        },
+        "copy": {
+          "name": "networkinterfaces",
+          "count": "[parameters('instanceCount')]"
+        }
+      },
+      {
+        "apiVersion": "2017-03-30",
+        "type": "Microsoft.Compute/virtualMachines",
+        "name": "[concat(variables('vmName'),copyIndex())]",
+        "location": "[variables('envLocation')]",
+        "dependsOn": [
+          "[concat('Microsoft.Storage/storageAccounts/', variables('vmStorageAccountName'))]",
+          "[concat('Microsoft.Network/networkInterfaces/', variables('nicName'),copyIndex())]"
+        ],
+        "copy": {
+          "name": "virtualmachines",
+          "count": "[parameters('instanceCount')]"
+        },
+        "properties": {
+          "hardwareProfile": {
+            "vmSize": "[parameters('vmSize')]"
+          },
+          "osProfile": {
+            "computerName": "[concat(variables('vmName'),copyIndex())]",
+            "adminUsername": "[parameters('adminUsername')]",
+            "adminPassword": "[parameters('adminPassword')]"
+          },
+          "storageProfile": {
+            "imageReference": {
+              "publisher": "[variables('imagePublisher')]",
+              "offer": "[variables('imageOffer')]",
+              "sku": "[parameters('ubuntuOSVersion')]",
+              "version": "latest"
+            },
+            "osDisk": {
+              "name": "osdisk1",
+              "vhd": {
+                "uri": "[concat('http://',variables('vmStorageAccountName'),'.blob.core.windows.net/',variables('vmStorageAccountContainerName'),'/',variables('OSDiskName'),copyIndex(),'.vhd')]"
+              },
+              "caching": "ReadWrite",
+              "createOption": "FromImage"
+            }
+          },
+          "networkProfile": {
+            "networkInterfaces": [
+              {
+                "id": "[concat(resourceId('Microsoft.Network/networkInterfaces',variables('nicName')),copyIndex())]"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "Microsoft.Compute/virtualMachines/extensions",
+        "name": "[concat(variables('vmName'),copyIndex(),'/', variables('extensionName'))]",
+        "apiVersion": "2017-03-30",
+        "location": "[variables('envLocation')]",
+        "dependsOn": [
+          "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'),copyIndex())]"
+        ],
+        "properties": {
+          "publisher": "Microsoft.Azure.Extensions",
+          "type": "CustomScript",
+          "typeHandlerVersion": "2.0",
+          "autoUpgradeMinorVersion": true,
+          "settings": {
+            "fileUris": [
+              "[concat(parameters('_artifactsLocation'), '/scripts/configure.sh')]"
+            ]
+          },
+          "protectedSettings": {
+            "commandToExecute": "[concat('./configure.sh \"', parameters('adminUsername'), '\" ',copyIndex(), ' \"', variables('dnsName'), '\"', ' \"', parameters(concat('validatorPrivKey',copyIndex())), '\"', ' \"', parameters(concat('validatorPubKey',copyIndex())), '\"', ' \"', parameters('networkPrivKey'), '\"', ' \"', parameters('networkPubKey'), '\"', ' \"', parameters('enigmaPrivKey'), '\"', ' \"', parameters('enigmaPubKey'), '\"', ' \"', parameters('churchPubKey'), '\"', ' \"', parameters('churchPrivKey'), '\"', ' \"', parameters('turingPubKey'), '\"', ' \"', parameters('turingPrivKey'), '\"', ' \"', parameters('zksnarkLambda'), '\"')]"
+          }
+        },
+        "copy": {
+          "name": "extensions",
+          "count": "[parameters('instanceCount')]"
+        }
+      }
+    ]
+  }
+  
